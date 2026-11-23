@@ -313,32 +313,47 @@ def payroll_upload_consolidated_slips(period_id):
             flash("Falta instalar el componente PDF para distribuir automáticamente los volantes.", "danger")
             return redirect(url_for("hr.payroll_detail", period_id=period_id))
         source = folder / f"_source_{secure_filename(upload.filename)}"
-        upload.save(source)
-        distributed = unmatched = 0
-        reader = PdfReader(str(source))
-        execute("DELETE FROM payroll_documents WHERE payroll_period_id=? AND document_type='pay_stub'", (period_id,))
-        for page_number, original_page in enumerate(reader.pages):
-            width, height = float(original_page.mediabox.width), float(original_page.mediabox.height)
-            page_text = original_page.extract_text() or ""
-            page_ids = re.findall(r"C\.?C\.?\s*#?\s*([0-9][0-9. ]{4,})", page_text, re.I)
-            for block, (bottom, top) in enumerate(((height / 2, height), (0, height / 2)), start=1):
-                page = deepcopy(original_page)
-                page.cropbox.lower_left = (0, bottom)
-                page.cropbox.upper_right = (width, top)
-                identification = re.sub(r"\D", "", page_ids[block - 1]) if len(page_ids) >= block else ""
-                employee = fetch_one("SELECT id FROM employees WHERE replace(replace(identification_number, '.', ''), ' ', '') = ? AND deleted_at IS NULL", (identification,)) if identification else None
-                if employee is None:
-                    unmatched += 1
-                    continue
-                stored = f"{period_id}_{employee['id']}_volante_{page_number + 1}_{block}.pdf"
-                writer = PdfWriter(); writer.add_page(page)
-                with open(folder / stored, "wb") as output:
-                    writer.write(output)
-                execute("DELETE FROM payroll_documents WHERE payroll_period_id=? AND employee_id=? AND document_type='pay_stub'", (period_id, employee["id"]))
-                execute("INSERT INTO payroll_documents (payroll_period_id, employee_id, document_type, original_name, stored_name, mime_type) VALUES (?, ?, 'pay_stub', ?, ?, 'application/pdf')", (period_id, employee["id"], f"Volante página {page_number + 1}-{block}.pdf", stored))
-                distributed += 1
-        try: source.unlink()
-        except OSError: pass
+        created_files = []
+        records = []
+        try:
+            upload.save(source)
+            reader = PdfReader(str(source))
+            distributed = unmatched = 0
+            for page_number, original_page in enumerate(reader.pages):
+                width, height = float(original_page.mediabox.width), float(original_page.mediabox.height)
+                page_text = original_page.extract_text() or ""
+                page_ids = re.findall(r"C\.?C\.?\s*#?\s*([0-9][0-9. ]{4,})", page_text, re.I)
+                for block, (bottom, top) in enumerate(((height / 2, height), (0, height / 2)), start=1):
+                    page = deepcopy(original_page)
+                    page.cropbox.lower_left = (0, bottom)
+                    page.cropbox.upper_right = (width, top)
+                    identification = re.sub(r"\D", "", page_ids[block - 1]) if len(page_ids) >= block else ""
+                    employee = fetch_one("SELECT id FROM employees WHERE replace(replace(identification_number, '.', ''), ' ', '') = ? AND deleted_at IS NULL", (identification,)) if identification else None
+                    if employee is None:
+                        unmatched += 1
+                        continue
+                    stored = f"{period_id}_{employee['id']}_volante_{page_number + 1}_{block}.pdf"
+                    writer = PdfWriter(); writer.add_page(page)
+                    with open(folder / stored, "wb") as output:
+                        writer.write(output)
+                    created_files.append(folder / stored)
+                    records.append((employee["id"], f"Volante página {page_number + 1}-{block}.pdf", stored))
+                    distributed += 1
+            with transaction():
+                old_documents = fetch_all("SELECT stored_name FROM payroll_documents WHERE payroll_period_id=? AND document_type='pay_stub'", (period_id,))
+                execute("DELETE FROM payroll_documents WHERE payroll_period_id=? AND document_type='pay_stub'", (period_id,))
+                for employee_id, original_name, stored in records:
+                    execute("INSERT INTO payroll_documents (payroll_period_id, employee_id, document_type, original_name, stored_name, mime_type) VALUES (?, ?, 'pay_stub', ?, ?, 'application/pdf')", (period_id, employee_id, original_name, stored))
+                audit_event("distribute", "payroll", "payroll_periods", period_id, metadata={"distributed": distributed, "unmatched": unmatched})
+            for old in old_documents:
+                if old["stored_name"] not in {record[2] for record in records}:
+                    (folder / old["stored_name"]).unlink(missing_ok=True)
+            source.unlink(missing_ok=True)
+        except Exception:
+            for path in created_files:
+                path.unlink(missing_ok=True)
+            source.unlink(missing_ok=True)
+            raise
         flash(f"Distribución terminada: {distributed} volantes asociados. {unmatched} bloques requieren revisión.", "success" if distributed else "warning")
         return redirect(url_for("hr.payroll_detail", period_id=period_id))
     stored = f"{period_id}_consolidado_{secure_filename(upload.filename)}"

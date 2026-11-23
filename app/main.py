@@ -25,6 +25,8 @@ def index():
 @login_required
 def dashboard():
     roles = {row["name"] for row in g.get("user_roles", [])}
+    if "admin" in roles and not roles.intersection({"gerencia", "coordinador_operativo", "supervisor_operaciones", "conductor", "jardinero"}):
+        return redirect(url_for("admin.console"))
     if "conductor" in roles and not (roles & {"admin", "gerencia"}):
         return redirect(url_for("main.driver_home"))
     if roles and roles <= {"jardinero"}:

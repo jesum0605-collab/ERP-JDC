@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Centro administrativo{% endblock %}
+{% block content %}
+<div class="page-heading admin-heading">
+  <div><span class="eyebrow">Control del sistema</span><h1 class="h2 mb-1">Centro administrativo</h1><p class="text-muted mb-0">Accesos, seguridad, auditoría y estado general de la plataforma.</p></div>
+  <span class="status-pill status-active"><i class="bi bi-shield-check me-1"></i>Entorno protegido</span>
+</div>
+<div class="row g-3 admin-metrics mb-4">
+  <div class="col-6 col-xl-3"><div class="card admin-stat"><div class="metric-icon"><i class="bi bi-people"></i></div><span>Usuarios activos</span><strong>{{ stats.active_users }}</strong><small>{{ stats.inactive_users }} inactivos</small></div></div>
+  <div class="col-6 col-xl-3"><div class="card admin-stat"><div class="metric-icon"><i class="bi bi-person-badge"></i></div><span>Roles configurados</span><strong>{{ stats.roles }}</strong><small>perfiles de acceso</small></div></div>
+  <div class="col-6 col-xl-3"><div class="card admin-stat"><div class="metric-icon"><i class="bi bi-journal-check"></i></div><span>Eventos auditados</span><strong>{{ stats.audit_events }}</strong><small>historial protegido</small></div></div>
+  <div class="col-6 col-xl-3"><div class="card admin-stat"><div class="metric-icon"><i class="bi bi-key"></i></div><span>Contraseñas pendientes</span><strong>{{ stats.pending_passwords }}</strong><small>requieren actualización</small></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-12 col-xl-7"><div class="card h-100"><div class="card-header d-flex justify-content-between"><h2 class="h6 mb-0">Actividad reciente</h2><a href="{{ url_for('admin.audit_log') }}" class="small">Ver auditoría</a></div><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Fecha</th><th>Actor</th><th>Acción</th><th>Resultado</th></tr></thead><tbody>{% for event in recent_events %}<tr><td class="small text-muted">{{ event.created_at }}</td><td>{{ event.actor_name or 'Sistema' }}</td><td><span class="fw-semibold">{{ event.action }}</span><div class="small text-muted">{{ event.module }}</div></td><td><span class="status-pill status-{{ 'active' if event.result == 'success' else 'blocked' }}">{{ event.result }}</span></td></tr>{% else %}<tr><td colspan="4" class="text-center py-4 text-muted">No hay eventos registrados.</td></tr>{% endfor %}</tbody></table></div></div></div>
+  <div class="col-12 col-xl-5"><div class="card h-100"><div class="card-header"><h2 class="h6 mb-0">Administración rápida</h2></div><div class="list-group list-group-flush admin-actions"><a class="list-group-item list-group-item-action" href="{{ url_for('admin.users_list') }}"><i class="bi bi-people"></i><span><strong>Usuarios y roles</strong><small>Gestionar accesos y credenciales</small></span><i class="bi bi-chevron-right"></i></a><a class="list-group-item list-group-item-action" href="{{ url_for('admin.audit_list') }}"><i class="bi bi-shield-check"></i><span><strong>Auditoría</strong><small>Consultar operaciones sensibles</small></span><i class="bi bi-chevron-right"></i></a><a class="list-group-item list-group-item-action" href="{{ url_for('documents.index') }}"><i class="bi bi-file-earmark-text"></i><span><strong>Documentos</strong><small>Plantillas y documentos generados</small></span><i class="bi bi-chevron-right"></i></a></div></div></div>
+</div>
+{% endblock %}

@@ -9,6 +9,26 @@ from .utils import audit_event, login_required, roles_required
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+@bp.get("")
+@login_required
+@roles_required("admin")
+def console():
+    stats = {
+        "active_users": fetch_one("SELECT COUNT(*) AS total FROM users WHERE is_active=1")["total"],
+        "inactive_users": fetch_one("SELECT COUNT(*) AS total FROM users WHERE is_active=0")["total"],
+        "roles": fetch_one("SELECT COUNT(*) AS total FROM roles")["total"],
+        "audit_events": fetch_one("SELECT COUNT(*) AS total FROM audit_log")["total"],
+        "pending_passwords": fetch_one("SELECT COUNT(*) AS total FROM users WHERE is_active=1 AND must_change_password=1")["total"],
+        "active_sessions": fetch_one("SELECT COUNT(*) AS total FROM users WHERE is_active=1 AND last_login_at IS NOT NULL")["total"],
+    }
+    recent_events = fetch_all(
+        """SELECT a.created_at, a.action, a.module, a.result, u.full_name AS actor_name
+           FROM audit_log a LEFT JOIN users u ON u.id=a.user_id
+           ORDER BY a.created_at DESC LIMIT 8"""
+    )
+    return render_template("admin/console.html", stats=stats, recent_events=recent_events)
+
+
 @bp.get("/auditoria")
 @login_required
 @roles_required("admin", "gerencia")

@@ -357,6 +357,38 @@ body.public-body .auth-card .btn-primary { min-height: 54px; }
   body.public-body .auth-shell .card-body { padding: 2.75rem 1.5rem 2.25rem !important; }
 }
 
+/* Depuración de interfaz: menos ruido, más jerarquía. */
+body.erp-body .page-heading .eyebrow { margin-bottom: .35rem; }
+body.erp-body .page-heading .eyebrow::before,
+body.erp-body .page-heading .eyebrow::after { display: none !important; }
+body.erp-body .page-heading .btn { align-self: center; }
+body.erp-body .workspace-container > .card.border-0,
+body.erp-body .workspace-container > .row > [class*="col-"] > .card.border-0 { border: 1px solid var(--jdc-line) !important; }
+body.erp-body .card-header h2,
+body.erp-body .card-header h3 { color: var(--jdc-ink); font-size: .92rem; letter-spacing: -.01em; }
+body.erp-body .table thead th { white-space: nowrap; }
+body.erp-body .table td .small.text-muted { color: #899790 !important; }
+body.erp-body .metric-disclosure .metric-summary { border-color: var(--jdc-line); background: var(--jdc-surface-muted); }
+body.erp-body .metric-disclosure .metric-summary a { color: var(--jdc-green); }
+body.erp-body .profile-hero,
+body.erp-body .employee-hero { border: 1px solid var(--jdc-line) !important; border-left: 4px solid var(--jdc-green) !important; background: var(--jdc-surface) !important; box-shadow: var(--jdc-shadow) !important; }
+body.erp-body .profile-hero::before,
+body.erp-body .profile-hero::after,
+body.erp-body .employee-hero::before,
+body.erp-body .employee-hero::after { display: none !important; }
+body.erp-body .profile-photo,
+body.erp-body .profile-photo-lg { border: 3px solid var(--jdc-green-soft); box-shadow: none !important; }
+body.erp-body .form-actions { gap: .55rem; }
+body.erp-body .form-actions .btn-secondary,
+body.erp-body .form-actions .btn-outline-secondary { background: #fff; }
+body.erp-body .alert { box-shadow: none !important; }
+body.erp-body .nav-tabs { border-bottom-color: var(--jdc-line); gap: .25rem; }
+body.erp-body .nav-tabs .nav-link { border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--jdc-muted); font-weight: 650; }
+body.erp-body .nav-tabs .nav-link:hover { color: var(--jdc-green); background: transparent; }
+body.erp-body .nav-tabs .nav-link.active { color: var(--jdc-green); border-bottom-color: var(--jdc-green); background: transparent; }
+body.erp-body .pagination .page-link { border-color: var(--jdc-line); color: var(--jdc-green); }
+body.erp-body .pagination .page-item.active .page-link { background: var(--jdc-green); border-color: var(--jdc-green); }
+
 /* Apple-inspired interaction polish: immediate feedback, calm motion, clear hierarchy. */
 html { font-optical-sizing: auto; }
 h1, h2, h3, h4, h5, h6 { text-wrap: balance; }

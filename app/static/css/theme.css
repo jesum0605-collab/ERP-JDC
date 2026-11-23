@@ -199,6 +199,69 @@ button, .btn, .form-control, .form-select, .sidebar-link, .metric-card, .card, .
   .sidebar-backdrop { transition: opacity 220ms ease; }
 }
 
+/* Movimiento de producto: breve, funcional y consistente en todos los módulos. */
+@keyframes jdc-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes jdc-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+body.erp-body .workspace-container {
+  animation: jdc-page-in 360ms cubic-bezier(.22,.61,.36,1) both;
+}
+body.erp-body .workspace-container > .page-heading,
+body.erp-body .workspace-container > .alert,
+body.erp-body .workspace-container > .row,
+body.erp-body .workspace-container > .card,
+body.erp-body .workspace-container > form {
+  animation: jdc-card-in 380ms cubic-bezier(.22,.61,.36,1) both;
+}
+body.erp-body .workspace-container > *:nth-child(2) { animation-delay: 40ms; }
+body.erp-body .workspace-container > *:nth-child(3) { animation-delay: 80ms; }
+body.erp-body .workspace-container > *:nth-child(4) { animation-delay: 120ms; }
+.app-sidebar .sidebar-link {
+  position: relative;
+  overflow: hidden;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, padding-left 180ms ease;
+}
+.app-sidebar .sidebar-link::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #e4bd69;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform 180ms ease;
+}
+.app-sidebar .sidebar-link:hover::before,
+.app-sidebar .sidebar-link.is-active::before { transform: scaleY(1); }
+.app-sidebar .sidebar-link:hover { padding-left: .82rem; }
+.app-topbar .quick-action,
+.app-topbar .profile-chip { transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease; }
+.app-topbar .quick-action:hover,
+.app-topbar .profile-chip:hover { transform: translateY(-1px); }
+.card, .metric-card, .list-group-item, .dropdown-menu { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease; }
+.card:hover { transform: translateY(-1px); }
+.btn { transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.985); }
+.dropdown-menu { animation: jdc-card-in 160ms ease both; transform-origin: top right; }
+.alert { animation: jdc-card-in 260ms ease both; }
+.metric-disclosure > summary::after { transition: color 160ms ease, transform 160ms ease; }
+.metric-disclosure[open] > summary::after { transform: rotate(180deg); }
+.metric-summary { animation: jdc-card-in 220ms ease both; }
+.table tbody tr { transition: background-color 140ms ease, box-shadow 140ms ease; }
+.table tbody tr:hover { box-shadow: inset 3px 0 0 var(--theme-accent); }
+@media (prefers-reduced-motion: reduce) {
+  body.erp-body .workspace-container,
+  body.erp-body .workspace-container > *,
+  .dropdown-menu, .alert, .metric-summary { animation: none !important; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}
+
 /* Login final: escala de verdes, no bloque plano. */
 body.public-body {
   background: linear-gradient(132deg, #063f35 0%, #0b6049 28%, #78b99a 62%, #dcefe4 100%) !important;
@@ -693,4 +756,38 @@ h1, h2, h3, h4, h5, h6 { letter-spacing: -.015em; font-weight: 700; }
   .erp-main { width: 100%; margin-left: 0; }
   .app-topbar { padding: 0 1rem; }
   .workspace-container { padding: 1.15rem 1rem .75rem; }
+}
+
+/* Capa final de interacción: movimiento breve y feedback consistente. */
+@keyframes jdc-page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes jdc-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+body.erp-body .workspace-container { animation: jdc-page-in 360ms cubic-bezier(.22,.61,.36,1) both; }
+body.erp-body .workspace-container > .page-heading,
+body.erp-body .workspace-container > .alert,
+body.erp-body .workspace-container > .row,
+body.erp-body .workspace-container > .card,
+body.erp-body .workspace-container > form { animation: jdc-card-in 380ms cubic-bezier(.22,.61,.36,1) both; }
+body.erp-body .workspace-container > *:nth-child(2) { animation-delay: 40ms; }
+body.erp-body .workspace-container > *:nth-child(3) { animation-delay: 80ms; }
+body.erp-body .workspace-container > *:nth-child(4) { animation-delay: 120ms; }
+.app-sidebar .sidebar-link { position: relative; overflow: hidden; transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, padding-left 180ms ease; }
+.app-sidebar .sidebar-link::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: #e4bd69; transform: scaleY(0); transform-origin: center; transition: transform 180ms ease; }
+.app-sidebar .sidebar-link:hover::before, .app-sidebar .sidebar-link.is-active::before { transform: scaleY(1); }
+.app-sidebar .sidebar-link:hover { padding-left: .82rem !important; }
+.app-topbar .quick-action, .app-topbar .profile-chip { transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease; }
+.app-topbar .quick-action:hover, .app-topbar .profile-chip:hover { transform: translateY(-1px); }
+.card, .metric-card, .list-group-item, .dropdown-menu { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms ease; }
+.card:hover { transform: translateY(-1px); }
+.btn { transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.985); }
+.dropdown-menu { animation: jdc-card-in 160ms ease both; transform-origin: top right; }
+.alert, .metric-summary { animation: jdc-card-in 260ms ease both; }
+.metric-disclosure > summary::after { transition: color 160ms ease, transform 160ms ease; }
+.metric-disclosure[open] > summary::after { transform: rotate(180deg); }
+.table tbody tr { transition: background-color 140ms ease, box-shadow 140ms ease; }
+.table tbody tr:hover { box-shadow: inset 3px 0 0 var(--theme-accent); }
+@media (prefers-reduced-motion: reduce) {
+  body.erp-body .workspace-container, body.erp-body .workspace-container > *, .dropdown-menu, .alert, .metric-summary { animation: none !important; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
 }

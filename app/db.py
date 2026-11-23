@@ -1,4 +1,5 @@
 import sqlite3
+import shutil
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,7 +52,14 @@ def apply_schema_extensions(db):
     # conservando IDs, roles, auditoría y contraseñas.
     email_column = next((row for row in user_info if row["name"] == "email"), None)
     if email_column and email_column["notnull"]:
+        # La reconstrucción de users es la única migración destructiva del arranque.
+        # Conservamos una copia recuperable antes de desactivar las FK y reemplazar la tabla.
+        database_path = Path(current_app.config["DATABASE"])
+        backup_dir = database_path.parent / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        migration_backup = backup_dir / f"pre_users_migration_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.db"
         db.commit()
+        shutil.copy2(database_path, migration_backup)
         db.execute("PRAGMA foreign_keys=OFF")
         db.execute("""
             CREATE TABLE users_optional_email (

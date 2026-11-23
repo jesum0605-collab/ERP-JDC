@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar sesión · Jardines de la Costa{% endblock %}
+{% block content %}
+<div class="auth-shell row justify-content-center align-items-center g-0" style="width:min(680px, calc(100vw - 2rem));">
+  <div class="auth-brand-panel">
+    <div class="auth-brand-inner">
+      <div class="auth-brand-logo"><img src="{{ url_for('static', filename='img/jdc-logo.ico') }}" alt="Jardines de la Costa"></div>
+      <div class="auth-brand-kicker">JARDINES DE LA COSTA S.A.S.</div>
+      <h1>Una operación.<br><strong>Un solo control.</strong></h1>
+      <p>Proyectos, personas, equipos y cumplimiento conectados para trabajar con claridad.</p>
+      <div class="auth-brand-meta"><span><i class="bi bi-building"></i> Gestión operativa</span><span><i class="bi bi-journal-check"></i> Registro de actividad</span></div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+    <div class="card auth-card border-0 shadow-lg">
+      <div class="card-body p-4 p-sm-5">
+        <div class="text-center mb-4">
+          <div class="auth-logo"><img src="{{ url_for('static', filename='img/jdc-logo.ico') }}" alt="Jardines de la Costa"></div>
+          <h1 class="h4 mt-3 mb-1">Acceso al sistema</h1>
+          <p class="text-muted mb-0">Ingresa con tus credenciales de trabajo</p>
+        </div>
+        <form method="post" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+          <div class="mb-3"><label class="form-label" for="email">Usuario o número de documento</label><input class="form-control form-control-lg" type="text" id="email" name="email" autocomplete="username" required autofocus></div>
+          <div class="mb-4"><label class="form-label" for="password">Contraseña</label><input class="form-control form-control-lg" type="password" id="password" name="password" autocomplete="current-password" required></div>
+          <button class="btn btn-primary w-100 btn-lg" type="submit">Iniciar sesión</button>
+        </form>
+        <p class="text-center text-muted small mt-4 mb-0">Jardines de la Costa S.A.S.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

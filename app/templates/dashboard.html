@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · Jardines de la Costa{% endblock %}
+{% block content %}
+<div class="page-heading enterprise-hero"><div><span class="eyebrow">Resumen operativo</span><h1 class="h2 mb-1">Estado de la operación</h1><p class="text-muted mb-0">Información actual de personal, proyectos, seguridad y equipos.</p></div>{% if can_create_project %}<a class="btn btn-primary" href="{{ url_for('projects.project_create') }}"><i class="bi bi-plus-lg me-1"></i>Nuevo proyecto</a>{% endif %}</div>
+
+<div class="row g-3 mb-4 dashboard-metrics">
+  <div class="col-6 col-xl-3"><details class="metric-disclosure"><summary class="metric-card text-start w-100"><div class="metric-icon bg-teal"><i class="bi bi-person-vcard"></i></div><div><div class="metric-label">Personal activo</div><div class="metric-value">{{ metrics.active_people }}</div><div class="metric-note">empleados y contratistas · Ver resumen</div></div></summary><div class="metric-summary">{{ metrics.active_people }} colaboradores y contratistas activos.<a href="{{ url_for(metric_links.active_people) }}">Abrir personal</a></div></details></div>
+  <div class="col-6 col-xl-3"><details class="metric-disclosure"><summary class="metric-card text-start w-100"><div class="metric-icon bg-blue"><i class="bi bi-kanban"></i></div><div><div class="metric-label">Proyectos activos</div><div class="metric-value">{{ metrics.active_projects }}</div><div class="metric-note">en ejecución · Ver resumen</div></div></summary><div class="metric-summary">{{ metrics.active_projects }} proyectos en ejecución dentro de tu alcance.<a href="{{ url_for(metric_links.active_projects) }}">Abrir proyectos</a></div></details></div>
+  <div class="col-6 col-xl-3"><details class="metric-disclosure"><summary class="metric-card text-start w-100"><div class="metric-icon bg-orange"><i class="bi bi-shield-exclamation"></i></div><div><div class="metric-label">Incidentes abiertos</div><div class="metric-value">{{ metrics.open_incidents }}</div><div class="metric-note">pendientes de cierre · Ver resumen</div></div></summary><div class="metric-summary">{{ metrics.open_incidents }} novedades requieren seguimiento o cierre.<a href="{{ url_for(metric_links.open_incidents) }}">Abrir SST</a></div></details></div>
+  <div class="col-6 col-xl-3"><details class="metric-disclosure"><summary class="metric-card text-start w-100"><div class="metric-icon bg-purple"><i class="bi bi-wrench-adjustable-circle"></i></div><div><div class="metric-label">Mantenimiento próximo</div><div class="metric-value">{{ metrics.equipment_due }}</div><div class="metric-note">próximos 30 días · Ver resumen</div></div></summary><div class="metric-summary">{{ metrics.equipment_due }} equipos requieren atención próxima.<a href="{{ url_for(metric_links.equipment_due) }}">Abrir equipos</a></div></details></div>
+</div>
+
+{% if metrics.employees_missing_arl or metrics.projects_without_end_date %}
+<div class="alert alert-warning border-0 shadow-sm mb-4" role="status">
+  <div class="fw-semibold mb-1"><i class="bi bi-exclamation-triangle me-1"></i>Calidad de datos pendiente</div>
+  <div class="small">
+    {% if metrics.employees_missing_arl %}{{ metrics.employees_missing_arl }} empleados activos no tienen ARL registrada.{% endif %}
+    {% if metrics.employees_missing_arl and metrics.projects_without_end_date %} {% endif %}
+    {% if metrics.projects_without_end_date %}{{ metrics.projects_without_end_date }} proyectos no tienen fecha de cierre prevista.{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-12 col-xl-8"><div class="card panel-card border-0 shadow-sm h-100"><div class="card-header bg-white d-flex justify-content-between align-items-center"><h2 class="h5 mb-0">Proyectos prioritarios</h2><a href="{{ url_for('projects.project_list') }}" class="small text-decoration-none">Ver todos</a></div><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Proyecto</th><th>Cliente</th><th>Estado</th><th>Avance / cierre</th></tr></thead><tbody>{% for project in recent_projects %}<tr><td><a class="fw-semibold text-decoration-none" href="{{ url_for('projects.project_detail', project_id=project.id) }}">{{ project.code }} · {{ project.name }}</a></td><td>{{ project.client_name or '—' }}</td><td><span class="status-pill status-{{ project.status }}">{{ project.status|replace('_', ' ')|title }}</span></td><td>{{ project.planned_end_date or 'Sin fecha' }}</td></tr>{% else %}<tr><td colspan="4" class="text-center text-muted py-5">Aún no hay proyectos registrados.</td></tr>{% endfor %}</tbody></table></div></div></div>
+  <div class="col-12 col-xl-4"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white"><h2 class="h5 mb-0">Actividad de campo</h2></div><div class="card-body p-0"><div class="list-group list-group-flush">{% for event in recent_telemetry %}<div class="list-group-item px-3 py-3 d-flex justify-content-between gap-2"><div><div class="fw-semibold">{{ event.event_type }}</div><div class="small text-muted">{{ event.source_type }} · {{ event.occurred_at }}</div></div><span class="severity severity-{{ event.severity }}">{{ event.severity }}</span></div>{% else %}<div class="p-4 text-center text-muted">No hay actividad registrada.</div>{% endfor %}</div></div></div></div>
+</div>
+{% endblock %}

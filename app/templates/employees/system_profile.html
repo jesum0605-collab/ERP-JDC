@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Mi perfil{% endblock %}
+{% block content %}
+<div class="page-heading"><div><span class="eyebrow">Cuenta del sistema</span><h1 class="h2 mb-1">Mi perfil</h1><p class="text-muted mb-0">Datos de acceso y administración.</p></div><a class="btn btn-outline-primary" href="{{ url_for('auth.change_password') }}">Cambiar contraseña</a></div>
+<div class="row g-3"><div class="col-12 col-lg-7"><div class="card border-0 shadow-sm"><div class="card-header bg-white"><h2 class="h5 mb-0">Información del usuario</h2></div><div class="card-body"><dl class="row mb-0"><dt class="col-sm-4">Nombre</dt><dd class="col-sm-8">{{ user.full_name }}</dd><dt class="col-sm-4">Usuario</dt><dd class="col-sm-8"><code>{{ user.username }}</code></dd><dt class="col-sm-4">Correo</dt><dd class="col-sm-8">{{ user.email or 'No registrado' }}</dd><dt class="col-sm-4">Tipo de cuenta</dt><dd class="col-sm-8">Administrador del sistema</dd></dl></div></div></div></div>
+{% endblock %}

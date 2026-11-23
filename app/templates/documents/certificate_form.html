@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Certificado laboral · Jardines de la Costa{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><span class="eyebrow">Gestión documental temporal</span><h1 class="h2 mb-1">Certificado laboral</h1><p class="text-muted mb-0">Selecciona un colaborador y completa los datos del certificado.</p></div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('documents.index') }}">Volver</a>
+</div>
+<div class="row g-4">
+  <div class="col-12 col-xl-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white"><h2 class="h5 mb-0">Datos del documento</h2></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('documents.labor_certificate') }}" class="row g-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="col-12"><label class="form-label">Colaborador *</label><input id="employee-search" class="form-control form-control-sm mb-2" type="search" placeholder="Buscar por nombre o documento" autocomplete="off"><select id="employee-select" class="form-select" name="employee_id" required><option value="">Selecciona una persona</option>{% for employee in employees %}<option value="{{ employee.id }}" data-search="{{ employee.name|lower }} {{ employee.identification_number }}" data-salary="{{ employee.base_salary or 0 }}" data-position="{{ employee.position or '' }}" data-hire-date="{{ employee.hire_date or '' }}">{{ employee.name }} · {{ employee.identification_number }}</option>{% endfor %}</select><div class="form-text">Escribe y la lista se filtra automáticamente. Los datos laborales se cargan desde el perfil.</div></div>
+          <div class="col-12 col-md-6"><label class="form-label">Tipo de documento</label><input class="form-control" name="document_type" value="Cédula de ciudadanía"></div>
+          <div class="col-12 col-md-6"><label class="form-label">Ciudad de expedición</label><input class="form-control" name="city" value="Cartagena"></div>
+          <div class="col-12 col-md-6"><label class="form-label">Fecha de ingreso</label><input class="form-control" type="date" name="hire_date"></div>
+          <div class="col-12 col-md-6"><label class="form-label">Cargo</label><input class="form-control" name="position" placeholder="Se toma del perfil si se deja vacío"></div>
+          <div class="col-12 col-md-6"><label class="form-label">Salario mensual</label><input id="salary-input" class="form-control" type="number" min="0" step="1" name="salary" placeholder="Se carga desde el perfil"><div class="form-text">Se carga automáticamente al elegir el colaborador y se convertirá a letras y números.</div></div>
+          <div class="col-12 col-md-6"><label class="form-label">Tipo de contrato</label><input class="form-control" name="contract_type" value="a término indefinido"></div>
+          <div class="col-12"><label class="form-label">Fecha de expedición</label><input class="form-control" type="date" name="issue_date" value="{{ current_date|default('') }}"></div>
+          <div class="col-12 d-flex justify-content-end gap-2 pt-2"><a class="btn btn-outline-secondary" href="{{ url_for('documents.index') }}">Cancelar</a><button class="btn btn-primary" type="submit"><i class="bi bi-file-earmark-pdf me-1"></i>Generar certificado PDF</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-4"><div class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Plantilla seleccionada</h2><p class="text-muted mb-0">Se utiliza la plantilla limpia que enviaste, conservando su membrete, pie institucional y espacio para el encargado de Recursos Humanos.</p></div></div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const search = document.getElementById('employee-search');
+  const select = document.getElementById('employee-select');
+  const salary = document.getElementById('salary-input');
+  const hireDate = document.querySelector('[name="hire_date"]');
+  const position = document.querySelector('[name="position"]');
+  if (!search || !select) return;
+  const options = Array.from(select.options).slice(1);
+  search.addEventListener('input', function () {
+    const query = this.value.trim().toLowerCase();
+    options.forEach(option => { option.hidden = !!query && !option.dataset.search.includes(query); });
+  });
+  select.addEventListener('change', function () {
+    const option = this.options[this.selectedIndex];
+    if (!option || !option.value) return;
+    if (salary && option.dataset.salary && Number(option.dataset.salary) > 0) salary.value = Math.round(Number(option.dataset.salary));
+    if (hireDate && option.dataset.hireDate) hireDate.value = option.dataset.hireDate;
+    if (position && option.dataset.position) position.value = option.dataset.position;
+  });
+})();
+</script>
+{% endblock %}

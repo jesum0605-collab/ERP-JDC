@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+instance/*.db
+instance/*.db-*
+instance/backups/
+instance/documents/
+instance/payroll_documents/
+instance/uploads/
+*.pyc
+output/
+tmp/
+jardines-erp-codigo-fuente.zip
+jardines-erp-codigo-fuente/

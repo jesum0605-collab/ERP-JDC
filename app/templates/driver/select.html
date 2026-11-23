@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Paneles de conductores{% endblock %}
+{% block content %}
+<div class="page-heading"><div><span class="eyebrow">Operación</span><h1 class="h2 mb-1">Paneles de conductores</h1><p class="text-muted mb-0">Selecciona el conductor que deseas consultar o administrar.</p></div></div>
+<div class="card border-0 shadow-sm"><div class="card-header bg-white"><h2 class="h5 mb-0">Conductores activos</h2></div><div class="list-group list-group-flush">{% for driver in drivers %}<a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ url_for('main.driver_dashboard', driver_employee_id=driver.id) }}"><span><strong>{{ driver.name }}</strong><small class="d-block text-muted"><code>{{ driver.identification_number }}</code> · {{ driver.position or 'Conductor' }}</small></span><i class="bi bi-arrow-right"></i></a>{% else %}<div class="p-4 text-muted">No hay conductores activos registrados.</div>{% endfor %}</div></div>
+{% endblock %}

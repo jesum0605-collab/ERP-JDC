@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#073b2a">
+  <title>{% block title %}Jardines de la Costa ERP{% endblock %}</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/jdc-logo.ico') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/app.css', v='enterprise-20261122-1') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/theme.css', v='jdc-login-expanded-20261123-5') }}" rel="stylesheet">
+</head>
+<body class="{% if g.user %}erp-body{% else %}public-body{% endif %}" data-ui="enterprise-premium">
+{% if g.user %}
+<div class="erp-shell">
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-brand">
+      <a href="{{ url_for('main.dashboard') }}" class="brand-link">
+        <span class="brand-mark brand-image"><img src="{{ url_for('static', filename='img/jdc-logo.ico') }}" alt="Jardines de la Costa"></span>
+        <span><strong>Jardines</strong><small>de la Costa · ERP</small></span>
+      </a>
+      <button class="sidebar-close d-lg-none" type="button" data-sidebar-toggle><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="sidebar-caption">Operación</div>
+    <nav class="sidebar-nav" data-ui="primary-navigation">
+      <a class="sidebar-link {% if request.path in ['/','/dashboard','/inicio-conductor','/mi-operacion'] %}is-active{% endif %}" href="{{ url_for('main.dashboard') }}"><i class="bi bi-grid-1x2-fill"></i><span>Inicio</span></a>
+      <div class="sidebar-section">Mi operación</div>
+      <a class="sidebar-link" href="{{ url_for('auth.change_password') }}"><i class="bi bi-key-fill"></i><span>Cambiar contraseña</span></a>
+      <a class="sidebar-link" href="{{ url_for('employees.my_profile') }}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a>
+      {% if has_role('conductor') %}<a class="sidebar-link {% if request.path.startswith('/conductor') %}is-active{% endif %}" href="{{ url_for('main.driver_dashboard') }}"><i class="bi bi-speedometer2"></i><span>Panel del conductor</span></a>{% endif %}
+      {% if has_role('operaciones','supervisor_operaciones','coordinador_operativo','conductor') %}
+      <div class="sidebar-section">Operación</div>
+      <a class="sidebar-link {% if request.path.startswith('/proyectos') %}is-active{% endif %}" href="{{ url_for('projects.project_list') }}"><i class="bi bi-kanban-fill"></i><span>Proyectos y obras</span></a>
+      <a class="sidebar-link {% if request.path.startswith('/rrhh/cuadrillas') %}is-active{% endif %}" href="{{ url_for('employees.crew_list') }}"><i class="bi bi-people-fill"></i><span>Cuadrillas</span></a>
+      <a class="sidebar-link {% if request.path.startswith('/recursos/materiales') %}is-active{% endif %}" href="{{ url_for('resources.materials_list') }}"><i class="bi bi-box-seam-fill"></i><span>Abastecimiento</span></a>
+      <a class="sidebar-link {% if request.path.startswith('/recursos/maquinaria') %}is-active{% endif %}" href="{{ url_for('resources.equipment_list') }}"><i class="bi bi-truck-front-fill"></i><span>Maquinaria y equipos</span></a>
+      {% endif %}
+      {% if is_admin or has_role('rrhh','asistente_administrativa','gerencia','coordinador_operativo','supervisor_operaciones') %}
+      <div class="sidebar-section">Personas</div>
+      <a class="sidebar-link {% if request.path.startswith('/rrhh/empleados') %}is-active{% endif %}" href="{{ url_for('employees.employee_list') }}"><i class="bi bi-person-vcard-fill"></i><span>Recursos humanos</span></a>
+      {% if has_role('rrhh','asistente_administrativa','gerencia','coordinador_operativo') %}<a class="sidebar-link {% if request.path.startswith('/rrhh/nomina') %}is-active{% endif %}" href="{{ url_for('hr.payroll_list') }}"><i class="bi bi-cash-coin"></i><span>Nómina</span></a>{% endif %}
+      <a class="sidebar-link {% if request.path.startswith('/rrhh/evaluaciones-9box') %}is-active{% endif %}" href="{{ url_for('hr.evaluation_list') }}"><i class="bi bi-bar-chart-line-fill"></i><span>Desempeño 9-Box</span></a>
+      {% if has_role('admin','gerencia','rrhh','asistente_administrativa','coordinador_operativo') %}<a class="sidebar-link {% if request.path.startswith('/documentos') %}is-active{% endif %}" href="{{ url_for('documents.index') }}"><i class="bi bi-file-earmark-text-fill"></i><span>Documentos y plantillas</span></a>{% endif %}
+      {% if not is_admin and has_role('gerencia','asistente_administrativa','coordinador_operativo') %}<a class="sidebar-link {% if request.path == '/documentos/certificado-laboral' %}is-active{% endif %}" href="{{ url_for('documents.labor_certificate') }}"><i class="bi bi-file-earmark-pdf-fill"></i><span>Certificado laboral</span></a>{% endif %}
+      {% endif %}
+      {% if has_role('sst','supervisor_sst','coordinador_operativo') %}
+      <div class="sidebar-section">Control y cumplimiento</div>
+      <a class="sidebar-link {% if request.path.startswith('/sst') %}is-active{% endif %}" href="{{ url_for('sst.dashboard') }}"><i class="bi bi-shield-check"></i><span>SST / HSE</span></a>
+      {% endif %}
+      {% if has_role('operaciones','supervisor_operaciones','coordinador_operativo','sst','supervisor_sst') %}<a class="sidebar-link {% if request.path.startswith('/recursos/auditorias') %}is-active{% endif %}" href="{{ url_for('resources.audits_list') }}"><i class="bi bi-clipboard2-check-fill"></i><span>Calidad y auditorías</span></a>{% endif %}
+      {% if is_admin %}<div class="sidebar-section">Administración</div><a class="sidebar-link {% if request.path == '/admin/usuarios' %}is-active{% endif %}" href="{{ url_for('admin.users_list') }}"><i class="bi bi-person-gear"></i><span>Usuarios y permisos</span></a><a class="sidebar-link {% if request.path.startswith('/admin/auditoria') %}is-active{% endif %}" href="{{ url_for('admin.audit_list') }}"><i class="bi bi-shield-check"></i><span>Auditoría</span></a>{% endif %}
+    </nav>
+    <div class="sidebar-footer"><div class="secure-badge"><i class="bi bi-shield-lock-fill"></i><span><strong>Sesión segura</strong><small>Registro activo</small></span></div></div>
+  </aside>
+  <div class="sidebar-backdrop" data-sidebar-toggle></div>
+  <div class="erp-main">
+    <header class="app-topbar" data-ui="application-header">
+      <button class="sidebar-toggle d-lg-none" type="button" data-sidebar-toggle><i class="bi bi-list"></i></button>
+      <div class="topbar-context"><img class="topbar-logo topbar-logo-large" src="{{ url_for('static', filename='img/jdc-logo.ico') }}" alt="Jardines de la Costa"><span class="topbar-title">Centro de operaciones</span></div>
+      <div class="topbar-actions">{% if is_admin or has_role('gerencia','rrhh','asistente_administrativa','coordinador_operativo','supervisor_operaciones','sst','supervisor_sst') %}<a class="quick-action" href="{{ url_for('api.kpi_pdf') }}"><i class="bi bi-file-earmark-arrow-down"></i><span class="d-none d-md-inline">Reporte</span></a>{% endif %}<div class="dropdown"><button class="profile-chip dropdown-toggle" data-bs-toggle="dropdown"><span class="profile-avatar">{{ g.user.full_name[:1]|upper }}</span><span class="d-none d-sm-flex flex-column text-start"><strong>{{ g.user.full_name }}</strong><small>{{ 'Administrador' if is_admin else 'Usuario del sistema' }}</small></span></button><ul class="dropdown-menu dropdown-menu-end shadow-lg"><li><a class="dropdown-item" href="{{ url_for('employees.my_profile') }}">Mi perfil</a></li>{% if is_admin %}<li><a class="dropdown-item" href="{{ url_for('admin.users_list') }}">Usuarios y permisos</a></li><li><hr class="dropdown-divider"></li>{% endif %}<li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Cambiar contraseña</a></li><li><form method="post" action="{{ url_for('auth.logout') }}" class="px-3"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="dropdown-item px-0">Cerrar sesión</button></form></li></ul></div></div>
+    </header>
+    <main class="workspace-container">
+{% else %}
+  <header class="public-header"><a href="{{ url_for('main.index') }}" class="brand-link"><span class="brand-mark brand-image"><img src="{{ url_for('static', filename='img/jdc-logo.ico') }}" alt="Jardines de la Costa"></span><span><strong style="color:#fff!important">Jardines de la Costa</strong><small style="color:#fff!important">ERP</small></span></a><span class="public-status" style="color:#fff!important"><i class="bi bi-circle-fill"></i> Acceso al sistema</span></header><main class="public-container">
+{% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-stack" aria-live="polite">{% for category,message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}</div>{% endif %}{% endwith %}
+{% block content %}{% endblock %}
+{% if g.user %}</main><footer class="workspace-footer">Jardines de la Costa S.A.S. · Sistema de Gestión Integral</footer></div></div>{% else %}</main>{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/lookup.js') }}"></script>
+<script>(function(){const key='jdc-sidebar-open';const read=()=>{try{return localStorage.getItem(key)==='1'||sessionStorage.getItem(key)==='1'}catch(e){return false}};const write=open=>{try{localStorage.setItem(key,open?'1':'0');sessionStorage.setItem(key,open?'1':'0')}catch(e){}};const setState=open=>{document.body.classList.toggle('sidebar-open',open);write(open)};if(read())document.body.classList.add('sidebar-open');document.querySelectorAll('[data-sidebar-toggle]').forEach(control=>control.addEventListener('click',()=>setState(!document.body.classList.contains('sidebar-open'))));document.querySelector('[data-ui="primary-navigation"]')?.addEventListener('click',event=>{if(event.target.closest('.sidebar-link'))write(true)},true);})();</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

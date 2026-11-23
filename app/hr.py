@@ -239,19 +239,20 @@ def payroll_import(period_id):
         if not required.issubset(headers):
             raise ValueError("La planilla debe incluir identificacion, devengado, deducciones y neto.")
         imported = 0
-        for row in reader:
-            normalized = {str(k or "").strip().lower().replace(" ", "_"): (v or "").strip() for k, v in row.items()}
-            employee = fetch_one("SELECT id FROM employees WHERE identification_number = ? AND deleted_at IS NULL", (normalized["identificacion"],))
-            if employee is None:
-                continue
-            execute("""
-                INSERT INTO payroll_items (payroll_period_id, employee_id, gross_amount, deductions, net_amount, payment_status)
-                VALUES (?, ?, ?, ?, ?, ?)
-                ON CONFLICT DO NOTHING
-            """, (period_id, employee["id"], float(normalized["devengado"] or 0), float(normalized["deducciones"] or 0), float(normalized["neto"] or 0), normalized.get("estado", "pending") or "pending"))
-            imported += 1
-        execute("UPDATE payroll_periods SET status='calculated', notes=CASE WHEN instr(COALESCE(notes,''), '[SOURCE:PLANILLA]')=0 THEN trim(COALESCE(notes,'') || ' [SOURCE:PLANILLA]') ELSE notes END WHERE id=?", (period_id,))
-        audit_event("import", "payroll", "payroll_periods", period_id, metadata={"source": "csv", "imported": imported})
+        with transaction():
+            for row in reader:
+                normalized = {str(k or "").strip().lower().replace(" ", "_"): (v or "").strip() for k, v in row.items()}
+                employee = fetch_one("SELECT id FROM employees WHERE identification_number = ? AND deleted_at IS NULL", (normalized["identificacion"],))
+                if employee is None:
+                    continue
+                execute("""
+                    INSERT INTO payroll_items (payroll_period_id, employee_id, gross_amount, deductions, net_amount, payment_status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT DO NOTHING
+                """, (period_id, employee["id"], float(normalized["devengado"] or 0), float(normalized["deducciones"] or 0), float(normalized["neto"] or 0), normalized.get("estado", "pending") or "pending"))
+                imported += 1
+            execute("UPDATE payroll_periods SET status='calculated', notes=CASE WHEN instr(COALESCE(notes,''), '[SOURCE:PLANILLA]')=0 THEN trim(COALESCE(notes,'') || ' [SOURCE:PLANILLA]') ELSE notes END WHERE id=?", (period_id,))
+            audit_event("import", "payroll", "payroll_periods", period_id, metadata={"source": "csv", "imported": imported})
         flash(f"Planilla importada: {imported} registros asociados por identificación.", "success")
     except (ValueError, UnicodeDecodeError) as error:
         flash(f"No se pudo importar la planilla: {error}", "danger")
@@ -273,11 +274,17 @@ def payroll_upload_slip(period_id):
     folder = Path(current_app.instance_path) / "payroll_documents"
     folder.mkdir(parents=True, exist_ok=True)
     stored = f"{period_id}_{employee_id}_{secure_filename(upload.filename)}"
-    upload.save(folder / stored)
-    execute("DELETE FROM payroll_documents WHERE payroll_period_id=? AND employee_id=? AND document_type='pay_stub'", (period_id, employee_id))
-    created = execute("""INSERT INTO payroll_documents (payroll_period_id, employee_id, document_type, original_name, stored_name, mime_type)
-              VALUES (?, ?, 'pay_stub', ?, ?, 'application/pdf')""", (period_id, employee_id, upload.filename, stored))
-    audit_event("upload", "payroll", "payroll_documents", created.lastrowid, metadata={"period_id": period_id, "employee_id": employee_id, "document_type": "pay_stub"})
+    destination = folder / stored
+    upload.save(destination)
+    try:
+        with transaction():
+            execute("DELETE FROM payroll_documents WHERE payroll_period_id=? AND employee_id=? AND document_type='pay_stub'", (period_id, employee_id))
+            created = execute("""INSERT INTO payroll_documents (payroll_period_id, employee_id, document_type, original_name, stored_name, mime_type)
+                      VALUES (?, ?, 'pay_stub', ?, ?, 'application/pdf')""", (period_id, employee_id, upload.filename, stored))
+            audit_event("upload", "payroll", "payroll_documents", created.lastrowid, metadata={"period_id": period_id, "employee_id": employee_id, "document_type": "pay_stub"})
+    except Exception:
+        destination.unlink(missing_ok=True)
+        raise
     flash("Volante de pago cargado correctamente.", "success")
     return redirect(url_for("hr.payroll_detail", period_id=period_id))
 

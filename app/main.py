@@ -126,6 +126,16 @@ def driver_home():
     employee = fetch_one("SELECT id, first_name, last_name, identification_number FROM employees WHERE identification_number=? AND deleted_at IS NULL", (g.user["username"],))
     if employee is None:
         return render_template("error.html", code=404, message="El conductor no está vinculado a un colaborador."), 404
+    if "supervisor_operaciones" in roles and not roles.intersection({"admin", "gerencia", "coordinador_operativo"}):
+        if current_employee is None:
+            return render_template("error.html", code=403, message="Tu usuario no tiene un supervisor operativo vinculado."), 403
+        supervised = fetch_one(
+            """SELECT 1 FROM crew_members cm JOIN crews c ON c.id=cm.crew_id
+               WHERE c.supervisor_employee_id=? AND cm.employee_id=? AND c.deleted_at IS NULL""",
+            (current_employee["id"], employee["id"]),
+        )
+        if supervised is None:
+            return render_template("error.html", code=403, message="Este conductor no pertenece a tus cuadrillas."), 403
     counts = {
         "projects": fetch_one("SELECT COUNT(*) AS total FROM project_assignments WHERE employee_id=?", (employee["id"],))["total"],
         "crews": fetch_one("SELECT COUNT(*) AS total FROM crew_members WHERE employee_id=?", (employee["id"],))["total"],
@@ -190,8 +200,25 @@ def driver_dashboard(driver_employee_id=None):
         ORDER BY employee_name
     """, (employee["id"],))
     roles = {row["name"] for row in g.get("user_roles", [])}
-    all_employees = fetch_all("SELECT id, first_name || ' ' || last_name AS name, identification_number FROM employees WHERE status='active' AND deleted_at IS NULL ORDER BY name") if roles.intersection({"admin", "gerencia", "coordinador_operativo", "supervisor_operaciones"}) else []
-    all_projects = fetch_all("SELECT id, code, name FROM projects WHERE deleted_at IS NULL ORDER BY code") if all_employees else []
+    control_roles = {"admin", "gerencia", "coordinador_operativo"}
+    if roles.intersection(control_roles):
+        all_employees = fetch_all("SELECT id, first_name || ' ' || last_name AS name, identification_number FROM employees WHERE status='active' AND deleted_at IS NULL ORDER BY name")
+        all_projects = fetch_all("SELECT id, code, name FROM projects WHERE deleted_at IS NULL ORDER BY code")
+    elif "supervisor_operaciones" in roles and current_employee:
+        all_employees = fetch_all(
+            """SELECT DISTINCT e.id, e.first_name || ' ' || e.last_name AS name, e.identification_number
+               FROM crew_members cm JOIN crews c ON c.id=cm.crew_id JOIN employees e ON e.id=cm.employee_id
+               WHERE c.supervisor_employee_id=? AND c.deleted_at IS NULL AND e.status='active' AND e.deleted_at IS NULL
+               ORDER BY name""",
+            (current_employee["id"],),
+        )
+        all_projects = fetch_all(
+            """SELECT DISTINCT p.id, p.code, p.name FROM crews c JOIN projects p ON p.id=c.project_id
+               WHERE c.supervisor_employee_id=? AND c.deleted_at IS NULL AND p.deleted_at IS NULL ORDER BY p.code""",
+            (current_employee["id"],),
+        )
+    else:
+        all_employees, all_projects = [], []
     return render_template("driver/dashboard.html", employee=employee, projects=projects, crews=crews, vehicles=vehicles, collaborators=collaborators, all_employees=all_employees, all_projects=all_projects)
 
 

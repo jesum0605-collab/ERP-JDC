@@ -241,8 +241,6 @@ def template_upload():
     if extension not in ALLOWED:
         flash("La plantilla debe ser PDF, DOCX, HTML o TXT.", "danger")
         return redirect(url_for("documents.index"))
-    stored = f"template_{g.user['id']}_{uuid.uuid4().hex}_{secure_filename(upload.filename)}"
-    upload.save(_folder() / stored)
     mapping = request.form.get("field_mapping", "").strip() or None
     if mapping:
         try:
@@ -250,6 +248,8 @@ def template_upload():
         except json.JSONDecodeError:
             flash("La asignación de campos debe ser un JSON válido.", "danger")
             return redirect(url_for("documents.index"))
+    stored = f"template_{g.user['id']}_{uuid.uuid4().hex}_{secure_filename(upload.filename)}"
+    upload.save(_folder() / stored)
     created = execute("INSERT INTO document_templates (name, description, original_name, stored_name, mime_type, field_mapping, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?)", (name, request.form.get("description", "").strip() or None, upload.filename, stored, upload.mimetype, mapping, g.user["id"]))
     audit_event("upload", "documents", "document_templates", created.lastrowid, after={"name": name, "original_name": upload.filename, "mime_type": upload.mimetype})
     flash("Plantilla cargada. Si es PDF con campos AcroForm, se rellenará automáticamente.", "success")

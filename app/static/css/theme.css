@@ -771,6 +771,117 @@ h1, h2, h3, h4, h5, h6 { letter-spacing: -.015em; font-weight: 700; }
   .workspace-container { padding: 1.15rem 1rem .75rem; }
 }
 
+/* Identidad visual principal: editorial, clara y operativa. */
+:root {
+  --jdc-bg: #f3f5f4;
+  --jdc-surface: #ffffff;
+  --jdc-surface-muted: #f8faf9;
+  --jdc-ink: #162b25;
+  --jdc-muted: #71817b;
+  --jdc-green: #087f5b;
+  --jdc-green-dark: #056044;
+  --jdc-green-soft: #e7f5ee;
+  --jdc-line: #dfe7e3;
+  --jdc-shadow: 0 8px 24px rgba(20, 48, 39, .055);
+  --jdc-shadow-hover: 0 14px 32px rgba(20, 48, 39, .10);
+}
+body.erp-body { background: var(--jdc-bg) !important; color: var(--jdc-ink); }
+body.erp-body .app-sidebar {
+  width: 224px !important;
+  background: #102f27 !important;
+  border-right: 1px solid rgba(255,255,255,.08);
+  box-shadow: 8px 0 24px rgba(14,43,34,.07) !important;
+}
+body.erp-body .erp-main { width: calc(100% - 224px); margin-left: 224px; }
+body.erp-body .sidebar-brand { min-height: 72px; padding: 1rem 1.1rem; border-bottom-color: rgba(255,255,255,.09); }
+body.erp-body .app-sidebar .brand-mark { width: 38px; height: 38px; border-radius: 10px; box-shadow: none; }
+body.erp-body .sidebar-caption { margin: 1.45rem 1.1rem .55rem; color: #82a99a; font-size: .61rem; letter-spacing: .16em; }
+body.erp-body .sidebar-section { margin: 1.2rem .65rem .35rem; color: #709789; font-size: .59rem; letter-spacing: .14em; }
+body.erp-body .sidebar-nav { padding: 0 .65rem 1rem; }
+body.erp-body .sidebar-link {
+  min-height: 38px;
+  margin: .12rem 0;
+  padding: .58rem .68rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #bed4ca;
+  font-size: .79rem;
+  font-weight: 650;
+}
+body.erp-body .sidebar-link:hover,
+body.erp-body .sidebar-link:focus { color: #fff; background: rgba(255,255,255,.075); border-color: rgba(255,255,255,.08); }
+body.erp-body .sidebar-link.is-active { color: #fff; background: #185442 !important; border-color: rgba(164,227,194,.15) !important; box-shadow: inset 3px 0 0 #d5aa5a !important; }
+body.erp-body .sidebar-link .bi { color: #8abca7; }
+body.erp-body .sidebar-link.is-active .bi { color: #f0c574; }
+body.erp-body .sidebar-footer { padding: .85rem; border-top-color: rgba(255,255,255,.09); }
+body.erp-body .app-topbar {
+  height: 68px;
+  padding: 0 clamp(1rem, 3vw, 2.4rem);
+  background: rgba(255,255,255,.96) !important;
+  border-bottom: 1px solid var(--jdc-line);
+  box-shadow: 0 1px 0 rgba(20,48,39,.02) !important;
+}
+body.erp-body .topbar-logo-large { width: 38px; height: 38px; border-radius: 10px; box-shadow: none; }
+body.erp-body .topbar-title { color: var(--jdc-ink); font-size: .9rem; font-weight: 750; }
+body.erp-body .quick-action { border-color: var(--jdc-line); border-radius: 8px; color: var(--jdc-muted); }
+body.erp-body .quick-action:hover { color: var(--jdc-green); background: var(--jdc-green-soft); border-color: #b9dcca; }
+body.erp-body .profile-chip { color: var(--jdc-ink); border-radius: 8px; }
+body.erp-body .profile-chip:hover { background: var(--jdc-surface-muted); }
+body.erp-body .workspace-container { max-width: 1440px; padding: 2.2rem clamp(1rem, 3vw, 2.8rem) 1rem; }
+body.erp-body .workspace-footer { padding: .8rem clamp(1rem, 3vw, 2.8rem) 1.4rem; color: #8b9993; }
+body.erp-body .page-heading {
+  min-height: 0;
+  margin-bottom: 1.8rem;
+  padding: 0 0 1.35rem;
+  border: 0 !important;
+  border-bottom: 1px solid var(--jdc-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body.erp-body .page-heading h1 { color: var(--jdc-ink); font-size: clamp(1.65rem, 2.4vw, 2.25rem); font-weight: 800; letter-spacing: -.05em; }
+body.erp-body .page-heading p { max-width: 58rem; color: var(--jdc-muted) !important; }
+body.erp-body .eyebrow { color: var(--jdc-green); font-size: .64rem; letter-spacing: .15em; }
+body.erp-body .card,
+body.erp-body .metric-card {
+  border: 1px solid var(--jdc-line) !important;
+  border-radius: 12px !important;
+  background: var(--jdc-surface) !important;
+  box-shadow: var(--jdc-shadow) !important;
+}
+body.erp-body .card:hover { box-shadow: var(--jdc-shadow-hover) !important; }
+body.erp-body .card-header { padding: 1rem 1.15rem; background: var(--jdc-surface) !important; border-bottom: 1px solid var(--jdc-line); }
+body.erp-body .card-body { padding: 1.25rem; }
+body.erp-body .btn { min-height: 38px; border-radius: 8px; font-size: .82rem; font-weight: 700; }
+body.erp-body .btn-primary { background: var(--jdc-green); border-color: var(--jdc-green); }
+body.erp-body .btn-primary:hover { background: var(--jdc-green-dark); border-color: var(--jdc-green-dark); }
+body.erp-body .form-control,
+body.erp-body .form-select { min-height: 40px; border: 1px solid #cfdcd5; border-radius: 8px; background: #fff; color: var(--jdc-ink); }
+body.erp-body .form-control:focus,
+body.erp-body .form-select:focus { border-color: #6db594; box-shadow: 0 0 0 3px rgba(8,127,91,.12); }
+body.erp-body .table-responsive { border-radius: 10px; }
+body.erp-body .table { color: var(--jdc-ink); font-size: .84rem; }
+body.erp-body .table > :not(caption) > * > * { padding: .78rem .9rem; border-bottom-color: var(--jdc-line); }
+body.erp-body .table thead th { color: #6c7e76; background: var(--jdc-surface-muted); font-size: .64rem; letter-spacing: .09em; }
+body.erp-body .table tbody tr:hover { background: #f5faf7; }
+body.erp-body .status-pill { border-radius: 999px; padding: .27rem .55rem; font-size: .64rem; }
+body.erp-body .dropdown-menu { border: 1px solid var(--jdc-line); border-radius: 10px; box-shadow: var(--jdc-shadow-hover); }
+body.erp-body .metric-card { min-height: 112px; padding: 1rem; }
+body.erp-body .metric-card:hover { transform: translateY(-2px); border-color: #a8cfba !important; }
+body.erp-body .metric-icon { width: 36px; height: 36px; border-radius: 9px; color: var(--jdc-green); background: var(--jdc-green-soft); }
+body.erp-body .metric-value { color: var(--jdc-ink); font-size: 1.85rem; font-weight: 800; }
+body.erp-body .metric-label { color: #64776f; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 991.98px) {
+  body.erp-body .app-sidebar { width: 224px !important; }
+  body.erp-body .erp-main { width: 100%; margin-left: 0; }
+}
+@media (max-width: 575.98px) {
+  body.erp-body .workspace-container { padding: 1.25rem .75rem .75rem; }
+  body.erp-body .page-heading { margin-bottom: 1.25rem; padding-bottom: 1rem; }
+  body.erp-body .page-heading h1 { font-size: 1.55rem; }
+  body.erp-body .card-body { padding: 1rem; }
+}
+
 /* Capa final de interacción: movimiento breve y feedback consistente. */
 @keyframes jdc-page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes jdc-card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
